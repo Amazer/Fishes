@@ -269,7 +269,6 @@ public class CFishAI : MonoBehaviour
         tarDir = tarPos - _tr.position;
         tarSpeed = tarDir.magnitude / tarTime * 1.5f;
         tarDir.Normalize();
-
 //        turnSpeed = Random.Range(0.5f, 4f);
         _curTime = 0f;
     }
