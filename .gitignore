@@ -12,4 +12,9 @@ test/*
 *.log
 *.csproj
 *.sln
+Library/*
+Temp/*
+app/*
+obj/*
+OtherRes/*
 
