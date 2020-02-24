@@ -1,0 +1,15 @@
+build/*
+build_cmake/*
+test/*
+.vs
+*.exe
+*.obj
+*.ilk
+*.idb
+*.pdb
+*.tlog
+*.lastbuildstate
+*.log
+*.csproj
+*.sln
+
