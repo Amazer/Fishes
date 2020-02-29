@@ -11,12 +11,12 @@ public class FileTool
 
         FileStream fs = File.Open(path, FileMode.Open);
         StreamReader sr = new StreamReader(fs);
-        string content= sr.ReadToEnd();
+        string content = sr.ReadToEnd();
         sr.Close();
         fs.Close();
         return content;
     }
-    public static bool WriteFile(string path,string content)
+    public static bool WriteFile(string path, string content)
     {
 
         FileStream fs = File.Open(path, FileMode.OpenOrCreate);
@@ -25,6 +25,20 @@ public class FileTool
         sw.Flush();
         sw.Close();
         fs.Close();
+        return true;
+    }
+    public static string[] GetAllFilePath(string dirPath)
+    {
+        string[] paths = Directory.GetFiles(dirPath);
+        return paths;
+    }
+    public static bool DelAll(string dirPath)
+    {
+        string[] files = Directory.GetFiles(dirPath);
+        for(int i=0,imax=files.Length;i<imax;++i)
+        {
+            File.Delete(files[i]);
+        }
         return true;
     }
 }

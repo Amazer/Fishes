@@ -17,7 +17,7 @@ public class FishModelNormalizeEditor : Editor
     [MenuItem("Tool/生成所有预制件")]
     public static void CreateAllFish()
     {
-        foreach (var v in Table_FishItemTool.instance.dataArray)
+        foreach (var v in t_tpl_fishitem.dic.Values)
         {
             CreatePrefab(v.name,v.y);
         }
