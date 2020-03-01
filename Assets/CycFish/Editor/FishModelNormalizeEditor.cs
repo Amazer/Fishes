@@ -14,7 +14,7 @@ public class FishModelNormalizeEditor : Editor
     public const string animControllerFolder = "Assets/CycFish/AnimControllers/";
     public const string prefabFolder = "Assets/CycFish/Prefabs/fishes/";
 
-    [MenuItem("Tool/生成所有预制件")]
+    [MenuItem("Tool/模型/生成所有Fish预制件")]
     public static void CreateAllFish()
     {
         foreach (var v in t_tpl_fishitem.dic.Values)
@@ -24,7 +24,7 @@ public class FishModelNormalizeEditor : Editor
         Debug.Log("生成完毕");
     }
 
-    [MenuItem("Tool/SetModel")]
+    [MenuItem("Tool/模型/设置模型为Aniamtor模式")]
 
     public static void SetModel()
     {
@@ -72,7 +72,7 @@ public class FishModelNormalizeEditor : Editor
         Debug.Log("Normalized model:" + path);
     }
 
-    [MenuItem("Tool/SetAnimatorController")]
+    [MenuItem("Tool/模型/生成模型AniamtorController")]
     public static void ConfigAnimatorcontroller()
     {
         Object o = Selection.activeObject;
@@ -121,7 +121,7 @@ public class FishModelNormalizeEditor : Editor
         Debug.Log("create animatorController:" + path);
     }
 
-    [MenuItem("Tool/SetFishPrefab")]
+    [MenuItem("Tool/模型/生成模型的预制件")]
     public static void CreateSelectionPrefab()
     {
 

@@ -19,12 +19,12 @@ using System;
 /// </summary>
 public class t_tpl_creator
 {
-    public static bool create_tpl_cs(string tableName,DataTable dataTable)
+    public static bool create_tpl_item_cs(string tableName,DataTable dataTable)
     {
         string class_name =string.Format("t_tpl_{0}_item", tableName.ToLower());
         StringBuilder sb = new StringBuilder();
         sb.AppendLine("/**********************************");
-        sb.AppendLine("工具生成，不要改动");
+        sb.AppendLine("         工具生成，不要改动");
         sb.AppendLine("***********************************/");
         sb.AppendLine("");
         sb.AppendLine("using System;");
@@ -76,32 +76,50 @@ public class t_tpl_creator
             return typeStr;
         }
     }
-    public static bool create_tpl_mgr_cs(string tableName)
+    public static bool create_tpl_cs(string tableName)
     {
         string class_name = string.Format("t_tpl_{0}", tableName.ToLower());
         string class_item_name = string.Format("t_tpl_{0}_item", tableName.ToLower());
-        StringBuilder sb = new StringBuilder();
-        sb.AppendLine("/**********************************");
-        sb.AppendLine("工具生成，不要改动");
-        sb.AppendLine("***********************************/");
-        sb.AppendLine("");
-        sb.AppendLine("using System;");
-        sb.AppendLine("using System.Collections.Generic;");
-        sb.AppendLine("using UnityEngine;");
-        sb.AppendLine("");
-        sb.AppendLine("[System.Serializable]");
-        sb.AppendLine("public class " + class_name + ":ScriptableObject");
-        sb.AppendLine("{");
-        sb.AppendLine("\tpublic " + class_item_name + "[] dataArray;");
-        sb.AppendLine("}");
-
+//        StringBuilder sb = new StringBuilder();
+//        sb.AppendLine("/**********************************");
+//        sb.AppendLine("        工具生成，不要改动");
+//        sb.AppendLine("***********************************/");
+//        sb.AppendLine("");
+//        sb.AppendLine("using System;");
+//        sb.AppendLine("using System.Collections.Generic;");
+//        sb.AppendLine("using UnityEngine;");
+//        sb.AppendLine("");
+//        sb.AppendLine("[System.Serializable]");
+//        sb.AppendLine("public class " + class_name + ":ScriptableObject");
+//        sb.AppendLine("{");
+//        sb.AppendLine("\tpublic " + class_item_name + "[] dataArray;");
+//        sb.AppendLine("\tpublic static Dictionary<int," + class_item_name + "> dic;");
+//        sb.AppendLine("\tprivate static bool loaded = false;");
+//        sb.AppendLine("\tpublic void Awake()");
+//        sb.AppendLine("\t{");
+//        sb.AppendLine("\t\tloaded = true;");
+//        sb.AppendLine("\t\tdic = new Dictionary<int," + class_item_name + ">();");
+//        sb.AppendLine("\t\tfor(int i=0,imax=dataArray.Length;i<imax;++i)");
+//        sb.AppendLine("\t\t\t"+class_item_name+" item = dataArray[i];");
+//        sb.AppendLine("\t\t\t dic.Add(item.id,item);");
+//        sb.AppendLine("}");
+//
         if(!Directory.Exists(t_tpl_config.dataCSPath))
         {
             Directory.CreateDirectory(t_tpl_config.dataCSPath);
         }
+        FileStream templateFs = File.Open(t_tpl_config.templatePath, FileMode.Open, FileAccess.Read);
+        StreamReader reader = new StreamReader(templateFs);
+        string csText = reader.ReadToEnd();
+        reader.Close();
+        templateFs.Close();
+
+        csText = csText.Replace("#class_name#", class_name);
+        csText = csText.Replace("#class_item_name#", class_item_name);
+
         FileStream fs = File.Open(t_tpl_config.dataCSPath + class_name+".cs", FileMode.OpenOrCreate, FileAccess.ReadWrite);
         StreamWriter sw = new StreamWriter(fs);
-        sw.Write(sb);
+        sw.Write(csText);
         sw.Flush();
         sw.Close();
         fs.Close();

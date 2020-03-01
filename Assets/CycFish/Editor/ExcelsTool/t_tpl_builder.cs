@@ -9,7 +9,7 @@ using System.IO;
 using Excel;
 public class t_tpl_builder : Editor
 {
-    [MenuItem("Excel/创建表格CS")]
+    [MenuItem("Tool/Excel/创建表格CS")]
     public static void CreateExcelCS()
     {
         FileTool.DelAll(t_tpl_config.dataCSPath);
@@ -27,7 +27,7 @@ public class t_tpl_builder : Editor
             }
         }
     }
-    [MenuItem("Excel/创建表格Assets")]
+    [MenuItem("Tool/Excel/创建表格Assets")]
     public static void CreateExcelAssets()
     {
         FileTool.DelAll(t_tpl_config.dataAssetPath);
@@ -45,7 +45,7 @@ public class t_tpl_builder : Editor
             }
         }
     }
-    [MenuItem("Excel/Test")]
+    [MenuItem("Tool/Excel/Test")]
     public static void Test()
     {
 
@@ -95,8 +95,8 @@ public class t_tpl_builder : Editor
         // 第二行是数据类型
         // 第三行是变量名称
         // 从第四行开始是数据
-        t_tpl_creator.create_tpl_cs(tableName, result);
-        t_tpl_creator.create_tpl_mgr_cs(tableName);
+        t_tpl_creator.create_tpl_item_cs(tableName, result);
+        t_tpl_creator.create_tpl_cs(tableName);
     }
     public static void build_table_assets(string tableName)
     {

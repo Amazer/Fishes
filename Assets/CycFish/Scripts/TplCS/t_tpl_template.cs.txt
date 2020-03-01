@@ -7,29 +7,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
-public class t_tpl_fishitem:ScriptableObject
+public class #class_name#:ScriptableObject
 {
-    public t_tpl_fishitem_item[] dataArray;
-    public static Dictionary<int, t_tpl_fishitem_item> dic;
+    public #class_item_name#[] dataArray;
+    public static Dictionary<int, #class_item_name#> dic;
     private static bool loaded = false;
     public void Awake()
     {
         loaded = true;
-        dic = new Dictionary<int, t_tpl_fishitem_item>();
+        dic = new Dictionary<int, #class_item_name#>();
         for(int i=0,imax = dataArray.Length;i<imax;++i)
         {
-            t_tpl_fishitem_item item = dataArray[i];
+            #class_item_name# item = dataArray[i];
             dic.Add(item.id, item);
         }
     }
 
-    public static t_tpl_fishitem_item FindById(int id)
+    public static #class_item_name# FindById(int id)
     {
         if(!loaded)
         {
             Debug.LogError("error not loaded!");
         }
-        t_tpl_fishitem_item item = null;
+        #class_item_name# item = null;
         if(dic.TryGetValue(id,out item))
         {
             return item;
