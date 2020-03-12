@@ -16,6 +16,7 @@ public class CFishAI : MonoBehaviour
     public float tarDistance;
     public float _curTime;
     public ActionState _curState;
+    public ActionState _lastState;
 
     public Animator _animator;
 
@@ -178,6 +179,47 @@ public class CFishAI : MonoBehaviour
         {
             Float();
         }
+    }
+    public void EscapeTest()
+    {
+        _lastState = _curState;
+        _curState = ActionState.Escape;
+
+//        if (_lastState == ActionState.Swimming)
+//        {
+//
+//        }
+//        else if (_lastState == ActionState.Float)
+//        {
+            float turnTime = Random.Range(0.1f, 1f);
+            turnSpeed =  Random.Range(4f, 10f);
+
+            float tarX = Tank.instance.RandomX();
+            float tarZ = Tank.instance.RandomZ();
+            float angle = Random.Range(-35, 35);
+            float tanAngle = Mathf.Tan(angle * Mathf.Deg2Rad);
+            float tarY = tarX * tanAngle;
+            if (tarY < Tank.instance.height.x)
+            {
+                tarY = Tank.instance.height.x;
+            }
+            else if (tarY > Tank.instance.height.y)
+            {
+                tarY = Tank.instance.height.y;
+            }
+
+            tarTime = Random.Range(3f, 5f);
+            tarPos = new Vector3(tarX, tarY, tarZ);
+            tarDir = tarPos - _tr.localPosition;
+            tarDistance = tarDir.magnitude;
+            tarSpeed = tarDir.magnitude / tarTime;
+            tarDir.Normalize();
+            speed.SetVarMinSpeed(Random.Range(0f, 2f));
+            speed.SetVarSpeedConfig(Random.Range(0.02f, 0.1f), Random.Range(0.2f, 0.5f));
+            speed.StartVarSpeed(tarDistance, tarTime, SpeedOver);
+            rota.SetRotate(turnSpeed, turnSpeed, tarDir);
+            move.Move(true, tarDir);
+//        }
     }
     public void Escape()
     {

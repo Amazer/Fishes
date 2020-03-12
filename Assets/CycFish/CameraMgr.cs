@@ -21,7 +21,8 @@ public class CameraMgr : SinMono<CameraMgr>
             if(Physics.Raycast(r, out hitInfo, 100f))
             {
                 CFishAI ai = hitInfo.transform.GetComponent<CFishAI>();
-                ai.Escape();
+                //                ai.Escape();
+                ai.EscapeTest();
             }
         }
         
