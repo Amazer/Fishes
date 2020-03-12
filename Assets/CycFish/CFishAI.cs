@@ -6,151 +6,76 @@ public class CFishAI : MonoBehaviour
 {
     public float turnSpeed = 4f;
 
-    public enum ActionState { Idle = 0, Turn, Swimming,Escape }
+    public enum ActionState { Idle = 0, Turn, Swimming, Escape, Float }
     public float tarTime;
     public float _curSpeed;
     public float tarSpeed;
     public float floatSpeed;
     public Vector3 tarDir;
     public Vector3 tarPos;
+    public float tarDistance;
     public float _curTime;
     public ActionState _curState;
 
-    public float _idleEndTime;
-    public float _turnEndTime;
     public Animator _animator;
 
     private Transform _tr;
+    [SerializeField]
+    private MoveFlag move;
+    [SerializeField]
+    private SpeedFlag speed;
+    [SerializeField]
+    private RotateFlag rota;
+
     // Use this for initialization
 
     void Start()
     {
-
         _tr = transform;
+        _tr.parent = Tank.instance.gameObject.transform;
         _animator = _tr.GetComponentInChildren<Animator>();
+        move = new MoveFlag(_tr);
+        speed = new SpeedFlag(_tr);
+        rota = new RotateFlag(_tr);
         RandomBorn();
-        GetTarget();
+        Swimming();
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        if (_curState == ActionState.Idle)
-        {
-            if (Time.realtimeSinceStartup < _idleEndTime)
-            {
-                _tr.rotation = Quaternion.Slerp(_tr.rotation, Quaternion.LookRotation(tarDir), turnSpeed * Time.deltaTime);
-                tarPos = _tr.position + _tr.forward * tarSpeed * Time.deltaTime;
-                UpdateAnimatorSpeed(tarSpeed);
-                if (inTank(tarPos))
-                {
-                    _tr.position = tarPos;
-                }
-                else
-                {
-                    _tr.position = _tr.position - _tr.forward * tarSpeed * Time.deltaTime;
-                }
-            }
-            else
-            {
-                GetTarget();
-            }
-
-        }
-        else if (_curState == ActionState.Turn)
-        {
-
-            if(Time.realtimeSinceStartup < _turnEndTime)
-            {
-                _tr.rotation = Quaternion.Slerp(_tr.rotation, Quaternion.LookRotation(tarDir), turnSpeed * Time.deltaTime);
-                tarPos = _tr.position + _tr.forward * floatSpeed * Time.deltaTime;
-                UpdateAnimatorSpeed(tarSpeed);
-                if (inTank(tarPos))
-                {
-                    _tr.position = tarPos;
-                }
-                else
-                {
-                    _tr.position = _tr.position - _tr.forward * floatSpeed * Time.deltaTime;
-                }
-
-            }
-            else
-            {
-                _curState = ActionState.Swimming;
-                turnSpeed = Random.Range(0.5f, 4f);
-                Update();
-
-            }
-        }
-        else if (_curState == ActionState.Swimming)
-        {
-            _curTime += Time.deltaTime;
-            float factor = _curTime / tarTime;
-            if (factor < 0.33f)
-            {
-
-                _curSpeed = Mathf.Lerp(floatSpeed, tarSpeed, _curTime / (tarTime * 0.33f));
-            }
-            else if (factor > 0.66f)
-            {
-                _curSpeed = Mathf.Lerp(tarSpeed, floatSpeed, (factor - 0.66f) / 0.33f);
-            }
-            UpdateAnimatorSpeed(_curSpeed);
-            tarPos = _tr.position + tarDir * _curSpeed * Time.deltaTime;
-            if (inTank(tarPos))
-            {
-                _tr.position = tarPos;
-                _tr.rotation = Quaternion.Slerp(_tr.rotation, Quaternion.LookRotation(tarDir), turnSpeed * Time.deltaTime);
-                //                _tr.rotation = Quaternion.LookRotation(tarDir);
-                if (_curTime > tarTime)
-                {
-//                    Idle();
-                    GetTarget();
-                }
-            }
-            else
-            {
-//                Idle();
-
-                GetTarget();
-            }
-        }
-        else if(_curState == ActionState.Escape)
-        {
-            _curTime += Time.deltaTime;
-            float factor = _curTime / tarTime;
-            if (factor < 0.13f)
-            {
-                _curSpeed = Mathf.Lerp(floatSpeed, tarSpeed, _curTime / (tarTime * 0.13f));
-            }
-            else if (factor > 0.66f)
-            {
-                _curSpeed = Mathf.Lerp(tarSpeed, floatSpeed, (factor - 0.66f) / 0.33f);
-            }
-            UpdateAnimatorSpeed(_curSpeed);
-            tarPos = _tr.position + tarDir * _curSpeed * Time.deltaTime;
-            if (inTank(tarPos))
-            {
-                _tr.position = tarPos;
-                _tr.rotation = Quaternion.Slerp(_tr.rotation, Quaternion.LookRotation(tarDir), turnSpeed * Time.deltaTime);
-                if (_curTime > tarTime)
-                {
-                    GetTarget();
-                }
-            }
-            else
-            {
-                GetTarget();
-            }
-
-        }
+        float deltaTime = Time.deltaTime;
+        speed.Update(deltaTime);
+        UpdateAnimatorSpeed(speed.curSpeed);
+        move.SetSpeed(speed.curSpeed);
+        rota.Update(deltaTime);
+        move.Update(deltaTime);
+        //        if (_curState == ActionState.Escape)
+        //        {
+        //            _curTime += Time.deltaTime;
+        //            float factor = _curTime / tarTime;
+        //            if (factor < 0.13f)
+        //            {
+        //                _curSpeed = Mathf.Lerp(floatSpeed, tarSpeed, _curTime / (tarTime * 0.13f));
+        //            }
+        //            else if (factor > 0.66f)
+        //            {
+        //                _curSpeed = Mathf.Lerp(tarSpeed, floatSpeed, (factor - 0.66f) / 0.33f);
+        //            }
+        //            UpdateAnimatorSpeed(_curSpeed);
+        //            tarPos = _tr.localPosition + tarDir * _curSpeed * Time.deltaTime;
+        //            _tr.localPosition = tarPos;
+        //            _tr.rotation = Quaternion.Slerp(_tr.rotation, Quaternion.LookRotation(tarDir), turnSpeed * Time.deltaTime);
+        //            if (_curTime > tarTime)
+        //            {
+        //                GetTarget();
+        //            }
+        //        }
 
     }
     private void UpdateAnimatorSpeed(float speed)
     {
-        if(!_animator)
+        if (!_animator)
         {
             return;
         }
@@ -165,32 +90,46 @@ public class CFishAI : MonoBehaviour
         _animator.speed = speed;
 
     }
-    private void Idle()
-    {
-        _idleEndTime = Time.realtimeSinceStartup + Random.Range(1f, 3f);
-        //        _idleTimeEndTime = Time.realtimeSinceStartup + Random.Range(5f, 10f);
-        _curState = ActionState.Idle;
-        tarSpeed = Random.Range(-0.5f, 0.5f);
-        turnSpeed = Random.Range(0.2f, 1f);
-        float random = Random.Range(1, 10);
-        if (random > 3)
-        {
-            tarDir = new Vector3(_tr.eulerAngles.x, 0, _tr.eulerAngles.z);
-        }
 
-    }
-    private void GetTarget()
+    // 漂浮
+    private void Float()
     {
-        _curState = ActionState.Turn;
-
-        float turnTime = Random.Range(0.1f, 2f);
-        _turnEndTime = Time.realtimeSinceStartup + turnTime;
-        float rangeLimit = 3;
+        _curState = ActionState.Float;
         floatSpeed = Random.Range(-1f, 1f);
-        turnSpeed =turnTime * Random.Range(0.5f, 1f);
-        tarTime = Random.Range(5f, 10f);
-        float deltaY = Random.Range(-rangeLimit, rangeLimit);
-        float tarY = _tr.position.y + deltaY;
+        float turnTime = Random.Range(0.1f, 2f);
+        turnSpeed = turnTime * Random.Range(0.5f, 1f);
+        tarTime = Random.Range(1, 5f);
+        tarSpeed = Random.Range(-1f, 2f);
+        float dis = Random.Range(1, 2);
+        tarDir.y = 0;
+        Vector3 tarPos = _tr.localPosition + tarDir * dis;
+        if (Tank.instance.InTank(tarPos))
+        {
+            tarDistance = dis;
+        }
+        else
+        {
+            tarPos = Tank.instance.InTankPos(tarPos);
+            tarDistance = Vector3.Distance(_tr.localPosition, tarPos);
+        }
+        speed.SetVarMinSpeed(Random.Range(0f, 1f));
+        speed.SetVarSpeedConfig(Random.Range(0.1f, 0.5f), Random.Range(0.0f, 0.5f));
+        speed.StartVarSpeed(tarDistance, tarTime, SpeedOver);
+        rota.SetRotate(turnSpeed, turnSpeed, tarDir);
+        move.Move(true, tarDir);
+    }
+    private void Swimming()
+    {
+        _curState = ActionState.Swimming;
+        float turnTime = Random.Range(0.1f, 2f);
+        floatSpeed = Random.Range(-1f, 1f);
+        turnSpeed = turnTime * Random.Range(0.5f, 1f);
+
+        float tarX = Tank.instance.RandomX();
+        float tarZ = Tank.instance.RandomZ();
+        float angle = Random.Range(-35, 35);
+        float tanAngle = Mathf.Tan(angle * Mathf.Deg2Rad);
+        float tarY = tarX * tanAngle;
         if (tarY < Tank.instance.height.x)
         {
             tarY = Tank.instance.height.x;
@@ -199,58 +138,58 @@ public class CFishAI : MonoBehaviour
         {
             tarY = Tank.instance.height.y;
         }
-        float fixedMaxWidth = Tank.instance.width.y - 3f * rangeLimit;
-        float tarX = Random.Range(Tank.instance.width.x, fixedMaxWidth);
-        if (tarX > fixedMaxWidth * 0.5f)
-        {
-            tarX = tarX + 3 * rangeLimit;
-        }
-        tarPos = new Vector3(tarX, tarY, Random.Range(Tank.instance.depth.x, Tank.instance.depth.y));
-        tarDir = tarPos - _tr.position;
-        tarSpeed = tarDir.magnitude / tarTime * 1.5f;
+
+        tarTime = Random.Range(5f, 10f);
+        tarPos = new Vector3(tarX, tarY, tarZ);
+        tarDir = tarPos - _tr.localPosition;
+        tarDistance = tarDir.magnitude;
+        tarSpeed = tarDir.magnitude / tarTime;
         tarDir.Normalize();
-//        turnSpeed = Random.Range(0.5f, 4f);
         _curTime = 0f;
         float random = Random.Range(0, 10);
-        if(random>=7f)
+        if (random >= 7f)
         {
-            _curState = ActionState.Swimming; 
+            _curState = ActionState.Swimming;
             turnSpeed = Random.Range(0.5f, 4f);
         }
-
-    }
-    private bool inTank(Vector3 position)
-    {
-        if (position.x < Tank.instance.width.x || position.x > Tank.instance.width.y)
-        {
-            return false;
-        }
-        if (position.y < Tank.instance.height.x || position.y > Tank.instance.height.y)
-        {
-            return false;
-        }
-        if (position.z < Tank.instance.depth.x || position.z > Tank.instance.depth.y)
-        {
-            return false;
-        }
-        return true;
+        speed.SetVarMinSpeed(Random.Range(0f, 2f));
+        speed.SetVarSpeedConfig(Random.Range(0.1f, 0.5f), Random.Range(0.2f, 0.5f));
+        speed.StartVarSpeed(tarDistance, tarTime, SpeedOver);
+        rota.SetRotate(turnSpeed, turnSpeed, tarDir);
+        move.Move(true, tarDir);
     }
     private void RandomBorn()
     {
-        _tr.transform.position = new Vector3(Tank.instance.RandomX(), Tank.instance.RandomY(), Tank.instance.RandomZ());
+        _tr.transform.localPosition = new Vector3(Tank.instance.RandomX(), Tank.instance.RandomY(), Tank.instance.RandomZ());
+    }
+    private void MoveOver()
+    {
+        //        GetTarget();
+        Float();
+    }
+    private void SpeedOver()
+    {
+        if (Random.Range(0, 10) > 4)
+        {
+
+            Swimming();
+        }
+        else
+        {
+            Float();
+        }
     }
     public void Escape()
     {
         _curState = ActionState.Escape;
 
         float turnTime = Random.Range(0.1f, 0.5f);
-        _turnEndTime = Time.realtimeSinceStartup + turnTime;
         float rangeLimit = 3;
         floatSpeed = Random.Range(-1f, 1f);
         turnSpeed = Random.Range(5f, 10f);
         tarTime = Random.Range(5f, 10f);
         float deltaY = Random.Range(-rangeLimit, rangeLimit);
-        float tarY = _tr.position.y + deltaY;
+        float tarY = _tr.localPosition.y + deltaY;
         if (tarY < Tank.instance.height.x)
         {
             tarY = Tank.instance.height.x;
@@ -266,10 +205,11 @@ public class CFishAI : MonoBehaviour
             tarX = tarX + 3 * rangeLimit;
         }
         tarPos = new Vector3(tarX, tarY, Random.Range(Tank.instance.depth.x, Tank.instance.depth.y));
-        tarDir = tarPos - _tr.position;
+        tarDir = tarPos - _tr.localPosition;
+        tarDistance = tarDir.magnitude;
         tarSpeed = tarDir.magnitude / tarTime * 1.5f;
         tarDir.Normalize();
-//        turnSpeed = Random.Range(0.5f, 4f);
+        //        turnSpeed = Random.Range(0.5f, 4f);
         _curTime = 0f;
     }
 }
