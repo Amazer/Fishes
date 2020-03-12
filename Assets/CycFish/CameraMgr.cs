@@ -22,7 +22,7 @@ public class CameraMgr : SinMono<CameraMgr>
             {
                 CFishAI ai = hitInfo.transform.GetComponent<CFishAI>();
                 //                ai.Escape();
-                ai.EscapeTest();
+                ai.Escape();
             }
         }
         

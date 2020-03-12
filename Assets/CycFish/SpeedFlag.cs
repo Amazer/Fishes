@@ -8,7 +8,7 @@ public class SpeedFlag
     [SerializeField]
     private float _curSpeed;
     [SerializeField]
-    private float _curTime;
+    private float _usedTime;
     [SerializeField]
     private float _totalTime; // 总时长
     [SerializeField]
@@ -56,6 +56,20 @@ public class SpeedFlag
             return _curSpeed;
         }
     }
+    public float totalTime
+    {
+        get
+        {
+            return _totalTime;
+        }
+    }
+    public float usedTime
+    {
+        get
+        {
+            return _usedTime;
+        }
+    }
     public SpeedFlag(Transform tr)
     {
         _tr = tr;
@@ -74,12 +88,25 @@ public class SpeedFlag
         _varSpeeding = true;
         _callback = callback;
         _totalTime = totalTime;
-        _accTime = totalTime * _speedUpProgress;
-        _decTime = totalTime * _speedDownProgress;
+        _usedTime = 0;
+        _accTime = _totalTime * _speedUpProgress;
+        _decTime = _totalTime * _speedDownProgress;
         _avgTime = _totalTime - _accTime - _decTime;
         _maxSpeed = (2f * distance-_curSpeed*_accTime-_minSpeed*_decTime) / (2f * totalTime - _accTime-_decTime);
         _accSpeed = (_maxSpeed - _curSpeed) / _accTime;
         _decSpeed = (_maxSpeed - _minSpeed) / _decTime;
+
+    }
+    public void StartVarSpeedFactor(float factor)
+    {
+        _varSpeeding = true;
+        _totalTime *= factor;
+        _accTime *= factor;
+        _decTime *= factor;
+        _avgTime *= factor;
+        _maxSpeed *= factor;
+        _accSpeed *= factor;
+        _decSpeed *= factor;
 
     }
     public void Update(float deltaTime)
@@ -92,7 +119,7 @@ public class SpeedFlag
     }
     private void _varSpeed(float deltaTime)
     {
-        _curTime = _curTime + deltaTime; 
+        _usedTime = _usedTime + deltaTime; 
         if(_accTime>0)
         {
             if(_accTime>deltaTime)
