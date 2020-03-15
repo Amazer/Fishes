@@ -7,6 +7,8 @@ public class MoveFlag
     private Action _callback;
     [SerializeField]
     private Vector3 _dest;
+    [SerializeField]
+    private Transform _dynamicDest;
     private Transform _tr;
     [SerializeField]
     private float _speed;
@@ -14,6 +16,8 @@ public class MoveFlag
     private Vector3 _dir;
     [SerializeField]
     private bool _moveToTarget = false;
+    [SerializeField]
+    private bool _moveToDynamicTarget = false;
     [SerializeField]
     private bool _moving = false;
     public MoveFlag(Transform tr)
@@ -24,11 +28,11 @@ public class MoveFlag
     {
         get
         {
-            return _tr.localPosition;
+            return _tr.position;
         }
         set
         {
-            _tr.localPosition = value;
+            _tr.position = value;
         }
     }
     public bool movingToTarget
@@ -52,17 +56,34 @@ public class MoveFlag
     public void MoveToTarget(Vector3 dest, Action callback)
     {
         _moveToTarget = true;
+        _moveToDynamicTarget = false;
         _moving = false;
         _dest = dest;
         _callback = callback;
     }
-    public void Move(bool moving,Vector3 dir)
+    public void MoveToDynamicTarget(Transform tr, Action callback)
+    {
+        _moveToTarget = false;
+        _moveToDynamicTarget = true;
+        _moving = false;
+        _dynamicDest = tr;
+        _callback = callback;
+    }
+    /// <summary>
+    /// 如果移动位置超出鱼缸，会callback
+    /// </summary>
+    /// <param name="moving"></param>
+    /// <param name="dir"></param>
+    /// <param name="cb"></param>
+    public void Move(bool moving, Vector3 dir, Action cb = null)
     {
         _moving = moving;
         _dir = dir;
-        if(_moving)
+        _callback = cb;
+        if (_moving)
         {
             _moveToTarget = false;
+            _moveToDynamicTarget = false;
         }
 
     }
@@ -72,9 +93,22 @@ public class MoveFlag
         {
             _MoveToTarget(deltaTime);
         }
-        if(_moving)
+        if (_moving)
         {
-            _nowPos += deltaTime * _dir * _speed;
+            Vector3 pos = _nowPos + deltaTime * _dir * _speed;
+            if (!Tank.instance.InTank(pos))
+            {
+                _moving = false;
+                _DoCallBack();
+            }
+            else
+            {
+                _nowPos = pos;
+            }
+        }
+        if (_moveToDynamicTarget)
+        {
+            _MoveToDynamicTarget(deltaTime);
         }
 
     }
@@ -96,6 +130,23 @@ public class MoveFlag
             _moveToTarget = false;
             _DoCallBack();
         }
+    }
+    private void _MoveToDynamicTarget(float deltaTime)
+    {
+        Vector3 dir = _dynamicDest.position - _nowPos;
+        float time = Vector3.Distance(_nowPos, _dynamicDest.position) / _speed;
+        if (time > deltaTime) // 需要的时间大于一个deltaTime
+        {
+            _nowPos = Vector3.Lerp(_nowPos, _dynamicDest.position, deltaTime / time);
+        }
+        else
+        {
+//            _nowPos = _dynamicDest.position;
+            _moveToDynamicTarget = false;
+            _dynamicDest = null;
+            _DoCallBack();
+        }
+
     }
     private void _DoCallBack()
     {

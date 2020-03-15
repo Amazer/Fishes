@@ -5,6 +5,7 @@ public class RotateFlag
 {
     private Transform _tr;
     private bool rotating = false;
+    private bool rotatToTarget = false;
 
     private float _rotaTime;
     private float _rotaSpeed;
@@ -12,6 +13,8 @@ public class RotateFlag
     private Vector3 _tarDir;
     [SerializeField]
     private Quaternion _tarQuat;
+    [SerializeField]
+    private Transform _tarTrans;
 
     private float _time;
 
@@ -34,17 +37,34 @@ public class RotateFlag
     public void SetRotate(float rotaTime, float rotaSpeed, Vector3 tarDir)
     {
         rotating = true;
+        rotatToTarget = false;
         _time = 0;
         _rotaTime = rotaTime;
         _rotaSpeed = rotaSpeed;
         _tarDir = tarDir;
+        _tarTrans = null;
         _tarQuat = Quaternion.LookRotation(tarDir);
+    }
+    public void SetRotateToTarget(float rotaTime, float rotaSpeed, Transform tarTran)
+    {
+        rotating = false;
+        rotatToTarget = true;
+        _time = 0;
+        _rotaTime = rotaTime;
+        _rotaSpeed = rotaSpeed;
+        _tarTrans = tarTran;
+        _tarQuat = Quaternion.LookRotation(_tarTrans.position-_tr.position);
+
     }
     public void Update(float deltaTime)
     {
         if (rotating)
         {
             _rotate(deltaTime);
+        }
+        else if(rotatToTarget)
+        {
+            _rotateToTarget(deltaTime);
         }
 
     }
@@ -59,26 +79,20 @@ public class RotateFlag
         {
             _tr.localRotation = Quaternion.Lerp(_tr.localRotation, _tarQuat, _rotaSpeed * deltaTime);
         }
-//        _time += deltaTime;
-//        if(_time<_rotaTime )
-//        {
-//            _tr.localRotation = Quaternion.Lerp(_tr.localRotation, _tarQuat, _rotaSpeed*deltaTime*2f);
-//
-//        }
-//        if(_rotaTime>deltaTime)
-//        {
-//            _tr.localRotation = Quaternion.Lerp(_tr.localRotation, _tarQuat, deltaTime/_rotaTime);
-////            curDir = Vector3.Lerp(curDir, _tarDir, deltaTime / _rotaTime);
-//            _rotaTime -= deltaTime;
-//        }
-//        else
-//        {
-//            _tr.localRotation = _tarQuat;
-////            curDir = _tarDir;
-//            _rotaTime = 0;
-//            rotating = false;
-//        }
-//
+        else
+        {
+            rotating = false;
+        }
+    }
+
+
+    private void _rotateToTarget(float deltaTime)
+    {
+        _tarQuat = Quaternion.LookRotation(_tarTrans.position-_tr.position);
+        if(_tr.localRotation != _tarQuat)
+        {
+            _tr.localRotation = Quaternion.Lerp(_tr.localRotation, _tarQuat, _rotaSpeed * deltaTime);
+        }
     }
 
 }
