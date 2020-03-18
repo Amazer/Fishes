@@ -9,6 +9,21 @@ public class FeedFlag
     private bool _feeding = false;
     private FoodAI _tarFood;
     private Action<bool> _callback;
+    private float _feedDuration;
+    public bool isHungry = true;
+    public float hungryTime=0f;
+    public float feedDuration
+    {
+        get
+        {
+            return _feedDuration;
+        }
+        set
+        {
+            _feedDuration = value;
+        }
+    }
+
 
     public bool feeding
     {
@@ -33,7 +48,13 @@ public class FeedFlag
         if (_feeding)
         {
             _feed(deltaTime);
-
+        }
+        if(!isHungry)
+        {
+            if(Time.timeSinceLevelLoad>hungryTime)
+            {
+                isHungry = true;
+            }
         }
     }
     private void _feed(float deltaTime)
@@ -51,6 +72,8 @@ public class FeedFlag
             _tarFood.DesFood();
             _feeding = false;
             _tarFood = null;
+            isHungry = false;
+            hungryTime = Time.timeSinceLevelLoad + _feedDuration;
             _DoCallBack(true);
         }
     }

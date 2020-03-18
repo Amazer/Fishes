@@ -25,9 +25,9 @@ public class FoodMgr : SinMono<FoodMgr>
         foodList.Remove(ai);
         EventMgr<GameEvent>.instance.TriggerEvent(GameEvent.FoodDestroy,ai);
     }
-    public void Nearest(Vector3 pos, out FoodAI ai)
+    public void Nearest(Vector3 pos, out FoodAI ai,out float dis)
     {
-        float dis = 9999f;
+        dis = 9999f;
         ai = null;
         for (int i = 0, imax = foodList.Count; i < imax; ++i)
         {
@@ -38,6 +38,7 @@ public class FoodMgr : SinMono<FoodMgr>
                 if(d<dis)
                 {
                     ai = f;
+                    dis = d;
                 }
             }
         }

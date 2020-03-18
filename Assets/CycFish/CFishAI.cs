@@ -15,6 +15,8 @@ public class CFishAI : MonoBehaviour
     public float _curTime;
     public ActionState _curState;
     public ActionState _lastState;
+    public float findFoodRange = 20f;
+    public float feedDuration = 5f;
 
     public Animator _animator;
 
@@ -43,6 +45,7 @@ public class CFishAI : MonoBehaviour
         speed = new SpeedFlag(_tr);
         rota = new RotateFlag(_tr);
         feed = new FeedFlag(_tr);
+        feed.feedDuration = feedDuration;
         RandomBorn();
         SpeedOver();
     }
@@ -255,7 +258,7 @@ public class CFishAI : MonoBehaviour
         speed.SetVarSpeedConfig(Random.Range(0.02f, 0.1f), Random.Range(0.2f, 0.5f));
         speed.StartVarSpeed(tarDistance, tarTime, SpeedOver);
         rota.SetRotate(turnSpeed, turnSpeed, tarDir);
-        move.Move(true, tarDir,SpeedOver);
+        move.Move(true, tarDir, SpeedOver);
 
 
     }
@@ -282,22 +285,30 @@ public class CFishAI : MonoBehaviour
         turnSpeed = Random.Range(4f, 10f);
         tarTime = Random.Range(1f, 3f);
         tarDir.Normalize();
-        speed.StartSpeedDown(Random.Range(1f, 4f), Random.Range(1f, 2f),SpeedOver);
+        speed.StartSpeedDown(Random.Range(1f, 4f), Random.Range(1f, 2f), SpeedOver);
         rota.SetRotate(turnSpeed, turnSpeed, tarDir);
-        move.Move(true, tarDir,SpeedOver);
+        move.Move(true, tarDir, SpeedOver);
     }
 
     private void OnFeed(object[] param)
     {
 
-        if (!feed.feeding)
+        if (feed.isHungry&&!feed.feeding)
         {
             // 寻找距离最近的食物，并且冲过去
-            FoodMgr.instance.Nearest(_tr.position, out _foodTarget);
+            float dis;
+            FoodMgr.instance.Nearest(_tr.position, out _foodTarget, out dis);
             if (_foodTarget != null)
             {
-                feed.StartFeed(_foodTarget, FeedOver);
-                Feed();
+                if (dis <= findFoodRange)
+                {
+                    feed.StartFeed(_foodTarget, FeedOver);
+                    Feed();
+                }
+                else
+                {
+                    _foodTarget = null;
+                }
             }
         }
     }
