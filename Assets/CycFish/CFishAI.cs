@@ -101,11 +101,9 @@ public class CFishAI : MonoBehaviour
             tarPos = Tank.instance.InTankPos(tarPos);
             tarDistance = Vector3.Distance(_tr.position, tarPos);
         }
-        speed.SetVarMinSpeed(Random.Range(0f, 1f));
-        speed.SetVarSpeedConfig(Random.Range(0.1f, 0.5f), Random.Range(0.0f, 0.5f));
-        speed.StartVarSpeed(tarDistance, tarTime, SpeedOver);
+        speed.StartToTarSpeed(Random.Range(-1f, 1f), Random.Range(0.5f, 2f));
         rota.SetRotate(turnSpeed, turnSpeed, tarDir);
-        move.Move(true, tarDir);
+        move.MoveByTime(Random.Range(2f, 5f), tarDir, SpeedOver);
     }
     private void Swimming()
     {
@@ -156,7 +154,7 @@ public class CFishAI : MonoBehaviour
     }
     private void SpeedOver()
     {
-        if (Random.Range(0, 10) > 4)
+        if (Random.Range(0, 10) > 3)
         {
 
             Swimming();
@@ -272,6 +270,7 @@ public class CFishAI : MonoBehaviour
         tarDir = tarPos - _tr.position;
         tarDistance = tarDir.magnitude;
         tarDir.Normalize();
+        feed.StartFeed(_foodTarget, FeedOver);
         speed.StartSpeedUp(Random.Range(3f, 10f), Random.Range(6f, 10f));
         rota.SetRotateToTarget(turnSpeed, turnSpeed, _foodTarget.transform);
         move.MoveToDynamicTarget(_foodTarget.transform, null);
@@ -285,7 +284,7 @@ public class CFishAI : MonoBehaviour
         turnSpeed = Random.Range(4f, 10f);
         tarTime = Random.Range(1f, 3f);
         tarDir.Normalize();
-        speed.StartSpeedDown(Random.Range(1f, 4f), Random.Range(1f, 2f), SpeedOver);
+        speed.StartSpeedDown(Random.Range(1f, 4f), Random.Range(1f, 2f),null);
         rota.SetRotate(turnSpeed, turnSpeed, tarDir);
         move.Move(true, tarDir, SpeedOver);
     }
@@ -302,8 +301,8 @@ public class CFishAI : MonoBehaviour
             {
                 if (dis <= findFoodRange)
                 {
-                    feed.StartFeed(_foodTarget, FeedOver);
                     Feed();
+                    
                 }
                 else
                 {
@@ -315,6 +314,6 @@ public class CFishAI : MonoBehaviour
 
     private void OnFoodDestroy(object[] param)
     {
-        OnFeed(null);// 再寻找其他的目标
+//        OnFeed(null);// 再寻找其他的目标
     }
 }

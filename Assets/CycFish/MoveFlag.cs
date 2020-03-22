@@ -20,6 +20,10 @@ public class MoveFlag
     private bool _moveToDynamicTarget = false;
     [SerializeField]
     private bool _moving = false;
+    [SerializeField]
+    private bool _movingByTime = false;
+    [SerializeField]
+    private float _moveTime = 0f;
     public MoveFlag(Transform tr)
     {
         _tr = tr;
@@ -57,6 +61,7 @@ public class MoveFlag
     {
         _moveToTarget = true;
         _moveToDynamicTarget = false;
+        _movingByTime = false;
         _moving = false;
         _dest = dest;
         _callback = callback;
@@ -66,6 +71,7 @@ public class MoveFlag
         _moveToTarget = false;
         _moveToDynamicTarget = true;
         _moving = false;
+        _movingByTime = false;
         _dynamicDest = tr;
         _callback = callback;
     }
@@ -84,7 +90,24 @@ public class MoveFlag
         {
             _moveToTarget = false;
             _moveToDynamicTarget = false;
+            _movingByTime = false;
         }
+
+    }
+    /// <summary>
+    /// 如果移动位置超出鱼缸，会callback
+    /// </summary>
+    /// <param name="moving"></param>
+    /// <param name="dir"></param>
+    /// <param name="cb"></param>
+    public void MoveByTime(float time, Vector3 dir, Action cb = null)
+    {
+        _movingByTime = true;
+        _moveToTarget = false;
+        _moveToDynamicTarget = false;
+        _dir = dir;
+        _moveTime = time;
+        _callback = cb;
 
     }
     public void Update(float deltaTime)
@@ -109,6 +132,11 @@ public class MoveFlag
         if (_moveToDynamicTarget)
         {
             _MoveToDynamicTarget(deltaTime);
+        }
+        if (_movingByTime)
+        {
+
+            _MoveByTime(deltaTime);
         }
 
     }
@@ -141,10 +169,31 @@ public class MoveFlag
         }
         else
         {
-//            _nowPos = _dynamicDest.position;
+            //            _nowPos = _dynamicDest.position;
             _moveToDynamicTarget = false;
             _dynamicDest = null;
             _DoCallBack();
+        }
+
+    }
+    private void _MoveByTime(float deltaTime)
+    {
+        _moveTime -= deltaTime;
+        if (_moveTime <= 0)
+        {
+            _movingByTime = false;
+            _DoCallBack();
+            return;
+        }
+        Vector3 pos = _nowPos + deltaTime * _dir * _speed;
+        if (!Tank.instance.InTank(pos))
+        {
+            _movingByTime = false;
+            _DoCallBack();
+        }
+        else
+        {
+            _nowPos = pos;
         }
 
     }
