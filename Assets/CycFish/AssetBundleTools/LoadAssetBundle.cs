@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 public class LoadAssetBundle : MonoBehaviour
 {
-    public string downloadUrl = "http://192.168.1.169:8888/";
     [System.NonSerialized]
     public string assetFolder;
     public string assetBundleName;
@@ -12,15 +11,10 @@ public class LoadAssetBundle : MonoBehaviour
     public string extension = ".ab";
     public AssetBundleManifest manifest;
     public Dictionary<string, AssetBundle> abList = new Dictionary<string, AssetBundle>();
-    [ContextMenu("GC")]
-    public void GC()
-    {
-        Resources.UnloadUnusedAssets();
-        System.GC.Collect();
-    }
     private void Awake()
     {
         assetFolder = Application.dataPath + "/../../FishesAssetbundles/";
+//        assetFolder = Application.dataPath + "/../assetbundles/";
     }
     IEnumerator Start()
     {
@@ -82,7 +76,7 @@ public class LoadAssetBundle : MonoBehaviour
     {
         if(manifest!=null)
         {
-            DestroyImmediate(manifest);
+            Object.DestroyImmediate(manifest,true);
         }
         manifest = null;
     }
