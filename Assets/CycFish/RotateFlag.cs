@@ -4,8 +4,8 @@ using System.Collections;
 public class RotateFlag
 {
     private Transform _tr;
-    private bool rotating = false;
-    private bool rotatToTarget = false;
+    private bool _rotating = false;
+    private bool _rotatToTarget = false;
 
     private float _rotaTime;
     private float _rotaSpeed;
@@ -36,8 +36,8 @@ public class RotateFlag
     }
     public void SetRotate(float rotaTime, float rotaSpeed, Vector3 tarDir)
     {
-        rotating = true;
-        rotatToTarget = false;
+        _rotating = true;
+        _rotatToTarget = false;
         _time = 0;
         _rotaTime = rotaTime;
         _rotaSpeed = rotaSpeed;
@@ -47,8 +47,8 @@ public class RotateFlag
     }
     public void SetRotateToTarget(float rotaTime, float rotaSpeed, Transform tarTran)
     {
-        rotating = false;
-        rotatToTarget = true;
+        _rotating = false;
+        _rotatToTarget = true;
         _time = 0;
         _rotaTime = rotaTime;
         _rotaSpeed = rotaSpeed;
@@ -58,11 +58,11 @@ public class RotateFlag
     }
     public void Update(float deltaTime)
     {
-        if (rotating)
+        if (_rotating)
         {
             _rotate(deltaTime);
         }
-        else if(rotatToTarget)
+        else if(_rotatToTarget)
         {
             _rotateToTarget(deltaTime);
         }
@@ -72,7 +72,7 @@ public class RotateFlag
     {
         if(Mathf.Abs(_rotaSpeed)<1e-5)
         {
-            rotating = false;
+            _rotating = false;
             return;
         }
         if(_tr.localRotation != _tarQuat)
@@ -81,7 +81,7 @@ public class RotateFlag
         }
         else
         {
-            rotating = false;
+            _rotating = false;
         }
     }
 

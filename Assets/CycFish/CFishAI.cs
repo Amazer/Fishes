@@ -18,9 +18,6 @@ public class CFishAI : MonoBehaviour
     public float findFoodRange = 20f;
     public float feedDuration = 5f;
 
-    public Animator _animator;
-
-
     private Transform _tr;
     [SerializeField]
     private MoveFlag move;
@@ -30,6 +27,8 @@ public class CFishAI : MonoBehaviour
     private RotateFlag rota;
     [SerializeField]
     private FeedFlag feed;
+    [SerializeField]
+    private AnimFlag anim;
 
     private FoodAI _foodTarget;
 
@@ -40,11 +39,11 @@ public class CFishAI : MonoBehaviour
         EventMgr<GameEvent>.instance.AddListener(GameEvent.FoodDestroy, OnFoodDestroy);
         _tr = transform;
         _tr.parent = Tank.instance.gameObject.transform;
-        _animator = _tr.GetComponentInChildren<Animator>();
         move = new MoveFlag(_tr);
         speed = new SpeedFlag(_tr);
         rota = new RotateFlag(_tr);
         feed = new FeedFlag(_tr);
+        anim = new AnimFlag(_tr);
         feed.feedDuration = feedDuration;
         RandomBorn();
         SpeedOver();
@@ -60,27 +59,11 @@ public class CFishAI : MonoBehaviour
         float deltaTime = Time.deltaTime;
         feed.Update(deltaTime);
         speed.Update(deltaTime);
-        UpdateAnimatorSpeed(speed.curSpeed);
+        anim.SetSpeed(speed.curSpeed);
+        anim.Update(deltaTime);
         move.SetSpeed(speed.curSpeed);
         rota.Update(deltaTime);
         move.Update(deltaTime);
-    }
-    private void UpdateAnimatorSpeed(float speed)
-    {
-        if (!_animator)
-        {
-            return;
-        }
-        if (speed > 1.5f)
-        {
-            speed = 1.5f;
-        }
-        else if (speed < 0.2f)
-        {
-            speed = 0.2f;
-        }
-        _animator.speed = speed;
-
     }
 
     // 漂浮
@@ -149,7 +132,6 @@ public class CFishAI : MonoBehaviour
     }
     private void MoveOver()
     {
-        //        GetTarget();
         Float();
     }
     private void SpeedOver()

@@ -1,5 +1,6 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using System;
 [System.Serializable]
 public class MoveFlag
@@ -9,6 +10,7 @@ public class MoveFlag
     private Vector3 _dest;
     [SerializeField]
     private Transform _dynamicDest;
+    
     private Transform _tr;
     [SerializeField]
     private float _speed;
