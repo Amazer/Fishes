@@ -99,11 +99,9 @@ public class MoveFlag
     /// <summary>
     /// 如果移动位置超出鱼缸，会callback
     /// </summary>
-    /// <param name="moving"></param>
-    /// <param name="dir"></param>
-    /// <param name="cb"></param>
     public void MoveByTime(float time, Vector3 dir, Action cb = null)
     {
+        _moving = false;
         _movingByTime = true;
         _moveToTarget = false;
         _moveToDynamicTarget = false;
