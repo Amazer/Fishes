@@ -14,6 +14,10 @@ using System.Collections;
 using System;
 public  static class Logger
 {
+    public static void Info(object message,params object[] argv)
+    {
+        Debug.Log(LoggerStringFormat(message, argv));
+    }
     public static void Log(object message,params object[] argv)
     {
         Debug.Log(LoggerStringFormat(message, argv));
